@@ -1,6 +1,6 @@
 class Character(object):
     def __init__(self, health, abilities, description, inventory, name):
-        self.health = 100
+        self.health = health
         self.abilities = abilities
         self.description = description
         self.inventory = inventory

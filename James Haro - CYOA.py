@@ -77,9 +77,9 @@ class Pencil(Tools):
         super(Pencil, self).__init__(name, description, attack)
 
 
-class Crow_bar(Tools):
+class CrowBar(Tools):
     def __init__(self, name, description, attack):
-        super(Crow_bar, self).__init__(name, description, attack)
+        super(CrowBar, self).__init__(name, description, attack)
 
 
 class Clothing(Items):
@@ -113,7 +113,7 @@ class Hoodie(Clothing):
 
 class Character(object):
     def __init__(self, health, abilities, description, inventory, name):
-        self.health = 100
+        self.health = health
         self.abilities = abilities
         self.description = description
         self.inventory = inventory
@@ -121,7 +121,9 @@ class Character(object):
 
 
 class Room(object):
-    def __init__(self, name, description, north, south, east, west, up, down):
+    def __init__(self, name, description, north, south, east, west, up, down, items=None):
+        if items is None:
+            items = []
         self.name = name
         self.description = description
         self.north = north
@@ -130,33 +132,52 @@ class Room(object):
         self.west = west
         self.up = up
         self.down = down
+        self.items = items
 
     def move(self, direction):
         global current_node
         current_node = globals()[getattr(self, direction)]
 
-player1 = Character("100", "run", "tall, slim and smart", "sword", "Pegasus")
 
-playground = Room("Playground", "You are at the playground.", 'garage', 'shed', 'lake', 'tower', None, None)
-garage = Room("Garage", "The car is not here.", 'master', 'playground', None, None, None, None)
-master = Room("Master Bedroom", "You just entered the house. Wow what a big room.", 'bedroom', 'garage', None, 'bathroom', None, None)
-bedroom = Room("Bedroom", "There are blankets on the bed.", None, 'master', None, 'living', None, None)
-living = Room("Living Room", "You are at the center of the house.", None, 'bathroom', 'bedroom', 'kitchen', None, None)
-bathroom = Room("Bathroom", "You are in the bathroom.", 'living', None, 'master', 'patio', None, None)
-kitchen = Room("Kitchen", "You are in the kitchen.", None, 'patio', 'living', None, None, None)
-patio = Room("Patio", "You are on the patio. You can leave the house to the south.", 'kitchen', 'gas', 'bathroom', None, None, None)
-gas = Room("Gas", "You are in the kitchen.", None, 'tower', 'master', None, None, None)
-tower = Room("Tower", "You are inside the tower. The tower has 3 levels.",'gas', 'storage', 'playground', None, 'second', None)
-second = Room("Second Level", "You are on the second level of the tower.", None, None, None, None, 'third', 'tower')
-third = Room("Third Level", "You are on the third level of the tower.", None, None, None, None, None, 'second')
-storage = Room("Storage Container", "You are inside the storage container.", 'tower',None, None, None, None, None)
-shed = Room("Shed", "You are inside the shed.", 'playground', 'car', None, None, None, None)
-car = Room("Car", "The car is outside.", 'shed', None, None, None, None, None)
-lake = Room("Lake", "The lake is looking nice today.", None, None, None, 'playground', None, None)
+crowbar = CrowBar("Crowbar", "It can open a door", 35)
+healing = Healing("Healing", "These items can heal you.", 20, "This item is consumable.")
+apple = Apple("Apple", "This apple can give you health.", 15, "This item is consumable.")
+medicine = Medicine("Medicine", "This medicine restores some of your health", 40, "This item is consumable.")
+antibiotic = Antibiotic("Antibiotic", "This type of medicine restores the most health", 60, "This item is consumable.")
+weapon = Weapon("Weapons", "These items cause damage.", 35)
+sword = Sword("Sword", "This weapon causes 35 attack damage when swung.", 35)
+pocket_knife = Pocket_Knife("Pocket Knife", "This specific weapon can cause 35 damage.", 35)
+tools = Tools("Tools", "These tools can be used.", "You can use it.")
+pencil = Pencil("Pencil", "This pencil can write on things and can be a weapon.", 35)
+clothing = Clothing("Clothes", "These items give health protection.", "These can be worn")
+pants = Pants("Pants", "These pants protect you from the cold.", "These are wearable.")
+hat = Hat("Hat", "The hat helps protect from the sun", "The hat is wearable")
+vest = Vest("Vest", "This vest protects from weapons", "This vest is wearable.")
+hoodie = Hoodie("Hoodie", "This hoodie provides protect from the cold.", "This hoodie is wearable.")
+
+player1 = Character("100", "hide", "short and helpfull", crowbar, "Peggy")
+player2 = Character("100", "run", "tall, slim and smart", sword, "John")
+
+playground = Room("Playground", "You are at the playground.", 'garage', 'shed', 'lake', 'tower', None, None, [crowbar])
+garage = Room("Garage", "The car is not here.", 'master', 'playground', None, None, None, None, [tools])
+master = Room("Master Bedroom", "You just entered the house. Wow what a big room.", 'bedroom', 'garage', None, 'bathroom', None, None, [clothing])
+bedroom = Room("Bedroom", "There are blankets on the bed.", None, 'master', None, 'living', None, None, [pencil, hat])
+living = Room("Living Room", "You are at the center of the house.", None, 'bathroom', 'bedroom', 'kitchen', None, None, [weapon])
+bathroom = Room("Bathroom", "You are in the bathroom.", 'living', None, 'master', 'patio', None, None, [medicine, healing, antibiotic])
+kitchen = Room("Kitchen", "You are in the kitchen.", None, 'patio', 'living', None, None, None, [apple])
+patio = Room("Patio", "You are on the patio. You can leave the house to the south.", 'kitchen', 'gas', 'bathroom', None, None, None, [apple])
+gas = Room("Gas", "You are in the kitchen.", None, 'tower', 'master', None, None, None, [sword])
+tower = Room("Tower", "You are inside the tower. The tower has 3 levels.",'gas', 'storage', 'playground', None, 'second', None, [vest, hoodie])
+second = Room("Second Level", "You are on the second level of the tower.", None, None, None, None, 'third', 'tower', [pants])
+third = Room("Third Level", "You are on the third level of the tower.", None, None, None, None, None, 'second', [pocket_knife])
+storage = Room("Storage Container", "You are inside the storage container.", 'tower',None, None, None, None, None, [pants, sword])
+shed = Room("Shed", "You are inside the shed.", 'playground', 'car', None, None, None, None, [medicine])
+car = Room("Car", "The car is outside.", 'shed', None, None, None, None, None, [tools])
+lake = Room("Lake", "The lake is looking nice today.", None, None, None, 'playground', None, None, [apple])
 
 current_node = playground
-short_directions = ['n', 's', 'e', 'w', 'u', 'd']
-directions = ['north', 'south', 'east', 'west', 'up', 'down']
+short_directions = ['n', 's', 'e', 'w', 'u', 'd', 'p']
+directions = ['north', 'south', 'east', 'west', 'up', 'down', 'pickup']
 
 while True:
     print(current_node.name)
@@ -165,7 +186,7 @@ while True:
     if command == 'quit':
         quit(0)
     elif command in short_directions:
-        #look for which command we typed in
+        # look for which command we typed in
         pos = short_directions.index(command)
         # change the command to be the long form
         command = directions[pos]
