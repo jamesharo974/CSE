@@ -155,8 +155,10 @@ hat = Hat("Hat", "The hat helps protect from the sun", "The hat is wearable")
 vest = Vest("Vest", "This vest protects from weapons", "This vest is wearable.")
 hoodie = Hoodie("Hoodie", "This hoodie provides protect from the cold.", "This hoodie is wearable.")
 
-player1 = Character("100", "hide", "short and helpfull", crowbar, "Peggy")
-player2 = Character("100", "run", "tall, slim and smart", sword, "John")
+player1 = Character("100", "hide", "short and helpfull", "crowbar", "Armstrong")
+print(player1.name)
+print(player1.health)
+player2 = Character("100", "run", "tall, slim and smart", "sword", "John")
 
 playground = Room("Playground", "You are at the playground.", 'garage', 'shed', 'lake', 'tower', None, None, [crowbar])
 garage = Room("Garage", "The car is not here.", 'master', 'playground', None, None, None, None, [tools])
@@ -175,9 +177,11 @@ shed = Room("Shed", "You are inside the shed.", 'playground', 'car', None, None,
 car = Room("Car", "The car is outside.", 'shed', None, None, None, None, None, [tools])
 lake = Room("Lake", "The lake is looking nice today.", None, None, None, 'playground', None, None, [apple])
 
+inventory = []
+
 current_node = playground
-short_directions = ['n', 's', 'e', 'w', 'u', 'd', 'p']
-directions = ['north', 'south', 'east', 'west', 'up', 'down', 'pickup']
+short_directions = ['n', 's', 'e', 'w', 'u', 'd',]
+directions = ['north', 'south', 'east', 'west', 'up', 'down']
 
 while True:
     print(current_node.name)
@@ -195,5 +199,7 @@ while True:
             current_node.move(command)
         except KeyError:
             print("You can't go that way.")
+    elif 'take' in command:
+        inventory.append()
     else:
         print("Command not recognized.")
