@@ -1,4 +1,4 @@
-class Items(object):
+class Item(object):
     def __init__(self, name, description):
         self.name = name
         self.description = description
@@ -10,7 +10,7 @@ class Items(object):
         print("This item's description is %s" % self.description)
 
 
-class Healing(Items):
+class Healing(Item):
     def __init__(self, name, description, add_health, consumable):
         super(Healing, self).__init__(name, description)
         self.add_health = add_health
@@ -38,7 +38,7 @@ class Antibiotic(Healing):
         super(Antibiotic, self).__init__(name, description, add_health, consumable)
 
 
-class Weapon(Items):
+class Weapon(Item):
     def __init__(self, name, description, attack):
         super(Weapon, self).__init__(name, description)
         self.attack = attack
@@ -60,7 +60,7 @@ class Pocket_Knife(Weapon):
         super(Pocket_Knife, self).__init__(name, description, attack)
 
 
-class Tools(Items):
+class Tools(Item):
     def __init__(self, name, description, use):
         super(Tools, self).__init__(name, description)
         self.use = use
@@ -82,7 +82,7 @@ class CrowBar(Tools):
         super(CrowBar, self).__init__(name, description, attack)
 
 
-class Clothing(Items):
+class Clothing(Item):
     def __init__(self, name, description, put_on):
         super(Clothing, self).__init__(name, description)
         self.put_on = put_on
@@ -119,10 +119,15 @@ class Character(object):
         self.inventory = inventory
         self.name = name
 
+    def take(self, item):
+        self.inventory.append(item)
+        print("You picked up the %s" % item.name)
+
+
 
 class Room(object):
-    def __init__(self, name, description, north, south, east, west, up, down, items=None):
-        if items is None:
+    def __init__(self, name, description, north, south, east, west, up, down, item=None):
+        if item is None:
             items = []
         self.name = name
         self.description = description
@@ -132,7 +137,7 @@ class Room(object):
         self.west = west
         self.up = up
         self.down = down
-        self.items = items
+        self.items = item
 
     def move(self, direction):
         global current_node
@@ -155,32 +160,37 @@ hat = Hat("Hat", "The hat helps protect from the sun", "The hat is wearable")
 vest = Vest("Vest", "This vest protects from weapons", "This vest is wearable.")
 hoodie = Hoodie("Hoodie", "This hoodie provides protect from the cold.", "This hoodie is wearable.")
 
-player1 = Character("100", "hide", "short and helpfull", "crowbar", "Armstrong")
+player1 = Character("100", "hide", "short and helpfull", [], "Jonathan Johnson")
 print(player1.name)
-print(player1.health)
-player2 = Character("100", "run", "tall, slim and smart", "sword", "John")
+print("Health: %s" % player1.health)
+player2 = Character("100", "run", "tall and smart", [], "Ron Smith")
+print(player2.name)
+print("Health: %s" % player2.health)
+player3 = Character("100", "jump", "young and patient", [], "Heather Jones")
+print(player3.name)
+print("Health: %s" % player3.health)
 
 playground = Room("Playground", "You are at the playground.", 'garage', 'shed', 'lake', 'tower', None, None, [crowbar])
 garage = Room("Garage", "The car is not here.", 'master', 'playground', None, None, None, None, [tools])
 master = Room("Master Bedroom", "You just entered the house. Wow what a big room.", 'bedroom', 'garage', None, 'bathroom', None, None, [clothing])
 bedroom = Room("Bedroom", "There are blankets on the bed.", None, 'master', None, 'living', None, None, [pencil, hat])
 living = Room("Living Room", "You are at the center of the house.", None, 'bathroom', 'bedroom', 'kitchen', None, None, [weapon])
-bathroom = Room("Bathroom", "You are in the bathroom.", 'living', None, 'master', 'patio', None, None, [medicine, healing, antibiotic])
-kitchen = Room("Kitchen", "You are in the kitchen.", None, 'patio', 'living', None, None, None, [apple])
-patio = Room("Patio", "You are on the patio. You can leave the house to the south.", 'kitchen', 'gas', 'bathroom', None, None, None, [apple])
-gas = Room("Gas", "You are in the kitchen.", None, 'tower', 'master', None, None, None, [sword])
-tower = Room("Tower", "You are inside the tower. The tower has 3 levels.",'gas', 'storage', 'playground', None, 'second', None, [vest, hoodie])
-second = Room("Second Level", "You are on the second level of the tower.", None, None, None, None, 'third', 'tower', [pants])
-third = Room("Third Level", "You are on the third level of the tower.", None, None, None, None, None, 'second', [pocket_knife])
-storage = Room("Storage Container", "You are inside the storage container.", 'tower',None, None, None, None, None, [pants, sword])
-shed = Room("Shed", "You are inside the shed.", 'playground', 'car', None, None, None, None, [medicine])
-car = Room("Car", "The car is outside.", 'shed', None, None, None, None, None, [tools])
-lake = Room("Lake", "The lake is looking nice today.", None, None, None, 'playground', None, None, [apple])
+bathroom = Room("Bathroom", "You are in the bathroom. There is medicine, heeling and antibiotic here. ", 'living', None, 'master', 'patio', None, None, [medicine, healing, antibiotic])
+kitchen = Room("Kitchen", "You are in the kitchen. There is also an apple here.", None, 'patio', 'living', None, None, None, [apple])
+patio = Room("Patio", "You are on the patio. You can leave the house to the south. There is also an apple here.", 'kitchen', 'gas', 'bathroom', None, None, None, [apple])
+gas = Room("Gas", "You are in the kitchen. There is also a sword here.", None, 'tower', 'master', None, None, None, [sword])
+tower = Room("Tower", "You are inside the tower. The tower has 3 levels. There is a vest and a hoodie here.",'gas', 'storage', 'playground', None, 'second', None, [vest, hoodie])
+second = Room("Second Level", "You are on the second level of the tower. There are some pants here.", None, None, None, None, 'third', 'tower', [pants])
+third = Room("Third Level", "You are on the third level of the tower. There is also a pocket knife here.", None, None, None, None, None, 'second', [pocket_knife])
+storage = Room("Storage Container", "You are inside the storage container. There are some pants and a sword here.", 'tower',None, None, None, None, None, [pants, sword])
+shed = Room("Shed", "You are inside the shed. There is also medicine here.", 'playground', 'car', None, None, None, None, [medicine])
+car = Room("Car", "The car is outside. There are also tools here.", 'shed', None, None, None, None, None, [tools])
+lake = Room("Lake", "The lake is looking nice today. There is also an apple here.", None, None,'boat', 'playground', None, None, [apple])
+boat = Room("Boat", "The boat is right on the lake.", None, None, None, 'lake', None, None)
 
-inventory = []
 
 current_node = playground
-short_directions = ['n', 's', 'e', 'w', 'u', 'd',]
+short_directions = ['n', 's', 'e', 'w', 'u', 'd']
 directions = ['north', 'south', 'east', 'west', 'up', 'down']
 
 while True:
@@ -199,7 +209,13 @@ while True:
             current_node.move(command)
         except KeyError:
             print("You can't go that way.")
-    elif 'take' in command:
-        inventory.append()
+    elif "take" in command:
+        item_requested = command[5:]
+        for item in current_node.items:
+            if item.name.lower() == item_requested.lower():
+                player1.take(item)
+
+
     else:
         print("Command not recognized.")
+
