@@ -1,3 +1,20 @@
+import sys
+
+def Fight(target):
+    while player1.health > 0 and target.health > 0:
+        print("You have %d Health left" % player1.health)
+        print("Target has %d Health left" % target.health)
+        cmd = input("What do you want to do?")
+        if cmd == 'attack':
+            player1.attack(target)
+        if target.health > 0:
+            target.attack(player1)
+        if target.health <= 0:
+            print("You killed the Goblin.")
+        if player1.health <= 0:
+            print("You Died")
+            sys.exit(0)
+
 class Item(object):
     def __init__(self, name, description):
         self.name = name
@@ -80,6 +97,7 @@ class Pencil(Tools):
 class CrowBar(Tools):
     def __init__(self, name, description, attack):
         super(CrowBar, self).__init__(name, description, attack)
+        self.attack = attack
 
 
 class Clothing(Item):
@@ -112,21 +130,27 @@ class Hoodie(Clothing):
 
 
 class Character(object):
-    def __init__(self, health, abilities, description, inventory, name):
+    def __init__(self, health, abilities, description, inventory, name, weapon):
         self.health = health
         self.abilities = abilities
         self.description = description
         self.inventory = inventory
         self.name = name
+        self.weapon = weapon
+
+    def attack(self, enemy):
+        enemy.take_damage(self.weapon.attack)
 
     def take(self, item):
         self.inventory.append(item)
         print("You picked up the %s" % item.name)
 
+    def take_damage(self, amt):
+        self.health -= amt
 
 
 class Room(object):
-    def __init__(self, name, description, north, south, east, west, up, down, item=None):
+    def __init__(self, name, description, north, south, east, west, up, down, item=None, enemy=None):
         if item is None:
             items = []
         self.name = name
@@ -138,13 +162,22 @@ class Room(object):
         self.up = up
         self.down = down
         self.items = item
+        self.enemy = enemy
 
     def move(self, direction):
         global current_node
         current_node = globals()[getattr(self, direction)]
 
 
-crowbar = CrowBar("Crowbar", "It can open a door", 35)
+crowbar1 = CrowBar("Crowbar", "It can open a door", 35)
+
+
+class Goblin(Character):
+    def __init__(self):
+        super(Goblin, self).__init__(100, "fight", "big and ugly", [], "James", crowbar1)
+
+
+
 
 healing = Healing("Healing", "These items can heal you.", 20, "This item is consumable.")
 
@@ -156,7 +189,7 @@ antibiotic = Antibiotic("Antibiotic", "This type of medicine restores the most h
 
 weapon = Weapon("Weapons", "These items cause damage.", 35)
 
-sword = Sword("Sword", "This weapon causes 35 attack damage when swung.", 35)
+sword = Sword("Sword", "This weapon causes 35 attack damage when swung.", 55)
 
 pocket_knife = Pocket_Knife("Pocket Knife", "This specific weapon can cause 35 damage.", 35)
 
@@ -174,16 +207,16 @@ vest = Vest("Vest", "This vest protects from weapons", "This vest is wearable.")
 
 hoodie = Hoodie("Hoodie", "This hoodie provides protect from the cold.", "This hoodie is wearable.")
 
-player1 = Character("100", "hide", "short and helpfull", [], "Jonathan Johnson")
+player1 = Character(100, "hide", "short and helpfull", [], "Jonathan Johnson", sword)
 print(player1.name)
 print("Health: %s" % player1.health)
 print("Inventory: %s" % player1.inventory)
 
 playground = Room("Playground", "You are at the playground. There is also a crowbar here.", 'garage', 'shed', 'lake',
-                  'tower', None, None, [crowbar])
+                  'tower', None, None, [crowbar1])
 
 garage = Room("Garage", "The car is not here. There are also tools here.", 'master', 'playground', None, None, None,
-              None, [tools])
+              None, [tools], Goblin())
 
 master = Room("Master Bedroom", "You just entered the house. Wow what a big room. There is also a clothing here.",
               'bedroom', 'garage', None, 'bathroom', None, None, [clothing])
@@ -210,7 +243,7 @@ tower = Room("Tower", "You are inside the tower. The tower has 3 levels. There i
              'storage', 'playground', None, 'second', None, [vest, hoodie])
 
 second = Room("Second Level", "You are on the second level of the tower. There are some pants here.", None, None, None,
-              None, 'third', 'tower', [pants])
+              None, 'third', 'tower', [pants], Goblin())
 
 third = Room("Third Level", "You are on the third level of the tower. There is also a pocket knife here.", None, None,
              None, None, None, 'second', [pocket_knife])
@@ -219,7 +252,7 @@ storage = Room("Storage Container", "You are inside the storage container. There
                'tower', None, None, None, None, None, [pants, sword])
 
 shed = Room("Shed", "You are inside the shed. There is also medicine here.", 'playground', 'car', None, None, None,
-            None, [medicine])
+            None, [medicine], Goblin())
 
 car = Room("Car", "The car is outside. There are also tools here.", 'shed', None, None, None, None, None, [tools])
 
@@ -239,6 +272,14 @@ directions = ['north', 'south', 'east', 'west', 'up', 'down']
 while True:
     print(current_node.name)
     print(current_node.description)
+
+    if current_node.enemy is not None:
+        print("You see %s" % current_node.enemy.name)
+        Fight(current_node.enemy)
+        if player1.health <= 0:
+            sys.exit(0)
+        current_node.enemy = None
+        continue
     command = input('>_').lower()
     if command == 'quit':
         quit(0)
@@ -257,6 +298,15 @@ while True:
         for item in current_node.items:
             if item.name.lower() == item_requested.lower():
                 player1.take(item)
+    elif "use" in command:
+        item_requested = command[5:]
+        for item in player1.inventory:
+            if item.name.lower() == item_requested.lower():
+                player1.take(item)
+                print("You used %s" % player1.inventory)
 
     else:
         print("Command not recognized.")
+
+
+
